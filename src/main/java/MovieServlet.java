@@ -1,103 +1,89 @@
 package main.java;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+
+import javax.annotation.Resource;
+import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 
-// this annotation maps this Java Servlet Class to a URL
-@WebServlet("/movies")
+// Declaring a WebServlet called StarsServlet, which maps to url "/api/stars"
+@WebServlet(name = "MovieServlet", urlPatterns = "/api/movies")
 public class MovieServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        // change this to your own mysql username and password
-        String loginUser = "mytestuser";
-        String loginPasswd = "mypassword";
-        String loginUrl = "jdbc:mysql://localhost:3306/moviedb";
+    // Create a dataSource which registered in web.xml
+    @Resource(name = "jdbc/moviedb")
+    private DataSource dataSource;
 
-        // set response mime type
-        response.setContentType("text/html");
+    /**
+     * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+     */
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-        // get the printwriter for writing response
+        response.setContentType("application/json"); // Response mime type
+
+        // Output stream to STDOUT
         PrintWriter out = response.getWriter();
 
-        out.println("<html>");
-        out.println("<head><title>Movies</title></head>");
-
         try {
-            Class.forName("com.mysql.jdbc.Driver").newInstance();
-            // create database connection
-            Connection connection = DriverManager.getConnection(loginUrl, loginUser, loginPasswd);
-            // declare statement
-            Statement statement = connection.createStatement();
-            // prepare query
-            String query = "SELECT * from movies limit 10";
-            // execute query
-            ResultSet resultSet = statement.executeQuery(query);
+            // Get a connection from dataSource
+            Connection dbcon = dataSource.getConnection();
 
-            out.println("<body>");
-            out.println("<h1>MovieDB movies</h1>");
+            // Declare our statement
+            Statement statement = dbcon.createStatement();
 
-            out.println("<table border>");
+            String query = "SELECT * from movies limit 20";
 
-            // add table header row
-            out.println("<tr>");
-            out.println("<td>id</td>");
-            out.println("<td>title</td>");
-            out.println("<td>year</td>");
-            out.println("</tr>");
+            // Perform the query
+            ResultSet rs = statement.executeQuery(query);
 
-            // add a row for every star result
-            while (resultSet.next()) {
-                // get a star from result set
-                String movieId = resultSet.getString("id");
-                String movieTitle = resultSet.getString("title");
-                String movieYear = resultSet.getString("year");
+            JsonArray jsonArray = new JsonArray();
 
-                out.println("<tr>");
-                out.println("<td>" + movieId + "</td>");
-                out.println("<td>" + movieTitle + "</td>");
-                out.println("<td>" + movieYear + "</td>");
-                out.println("</tr>");
+            // Iterate through each row of rs
+            while (rs.next()) {
+                String movie_id = rs.getString("id");
+                String movie_title = rs.getString("title");
+                String movie_year = rs.getString("year");
+
+                // Create a JsonObject based on the data we retrieve from rs
+                JsonObject jsonObject = new JsonObject();
+                jsonObject.addProperty("movie_id", movie_id);
+                jsonObject.addProperty("movie_title", movie_title);
+                jsonObject.addProperty("movie_year", movie_year);
+
+                jsonArray.add(jsonObject);
             }
 
-            out.println("</table>");
-            out.println("</body>");
+            // write JSON string to output
+            out.write(jsonArray.toString());
+            // set response status to 200 (OK)
+            response.setStatus(200);
 
-            resultSet.close();
+            rs.close();
             statement.close();
-            connection.close();
-
+            dbcon.close();
         } catch (Exception e) {
-            /*
-             * After you deploy the WAR file through tomcat manager webpage,
-             *   there's no console to see the print messages.
-             * Tomcat append all the print messages to the file: tomcat_directory/logs/catalina.out
-             *
-             * To view the last n lines (for example, 100 lines) of messages you can use:
-             *   tail -100 catalina.out
-             * This can help you debug your program after deploying it on AWS.
-             */
-            e.printStackTrace();
 
-            out.println("<body>");
-            out.println("<p>");
-            out.println("Exception in doGet: " + e.getMessage());
-            out.println("</p>");
-            out.print("</body>");
+            // write error message JSON object to output
+            JsonObject jsonObject = new JsonObject();
+            jsonObject.addProperty("errorMessage", e.getMessage());
+            out.write(jsonObject.toString());
+
+            // set reponse status to 500 (Internal Server Error)
+            response.setStatus(500);
+
         }
-
-        out.println("</html>");
         out.close();
 
     }
-
-
 }
