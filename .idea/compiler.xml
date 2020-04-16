@@ -10,7 +10,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="cs122b-spring20-team-181" target="1.5" />
+      <module name="cs122b-spring20-team-181" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>
