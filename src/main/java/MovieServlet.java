@@ -42,7 +42,7 @@ public class MovieServlet extends HttpServlet {
             // Declare our statement
             Statement statement = dbcon.createStatement();
 
-            String query = "select topTen.id, topTen.title, topTen.year, topTen.director, group_concat(distinct genres.name separator ', ') as threeGenres, substring_index(group_concat(stars.name separator ','), ',', 3) as threeStars, topTen.rating from (select movies.*, ratings.rating from movies left join ratings on (movies.id = ratings.movieId) order by ratings.rating desc limit 10) as topTen left join stars_in_movies on (topTen.id = stars_in_movies.movieId) left join stars on (stars.id = stars_in_movies.starId) left join genres_in_movies on (topTen.id = genres_in_movies.movieId) left join genres on (genres.id = genres_in_movies.genreId) group by topTen.id order by topTen.rating desc;";
+            String query = "select topTen.id, topTen.title, topTen.year, topTen.director, group_concat(distinct genres.name separator ', ') as threeGenres, substring_index(group_concat(stars.name separator ','), ',', 3) as threeStars, topTen.rating from (select movies.*, ratings.rating from movies left join ratings on (movies.id = ratings.movieId) order by ratings.rating desc limit 20) as topTen left join stars_in_movies on (topTen.id = stars_in_movies.movieId) left join stars on (stars.id = stars_in_movies.starId) left join genres_in_movies on (topTen.id = genres_in_movies.movieId) left join genres on (genres.id = genres_in_movies.genreId) group by topTen.id order by topTen.rating desc;";
 
             // Perform the query
             ResultSet rs = statement.executeQuery(query);
@@ -54,12 +54,19 @@ public class MovieServlet extends HttpServlet {
                 String movie_id = rs.getString("id");
                 String movie_title = rs.getString("title");
                 String movie_year = rs.getString("year");
-
+                String movie_director = rs.getString("director");
+                String threeGenres = rs.getString("threeGenres");
+                String threeStars = rs.getString("threeStars");
+                String rating = rs.getString("rating");
                 // Create a JsonObject based on the data we retrieve from rs
                 JsonObject jsonObject = new JsonObject();
                 jsonObject.addProperty("movie_id", movie_id);
                 jsonObject.addProperty("movie_title", movie_title);
                 jsonObject.addProperty("movie_year", movie_year);
+                jsonObject.addProperty("movie_director", movie_director);
+                jsonObject.addProperty("threeGenres", threeGenres);
+                jsonObject.addProperty("threeStars", threeStars);
+                jsonObject.addProperty("rating", rating);
 
                 jsonArray.add(jsonObject);
             }
