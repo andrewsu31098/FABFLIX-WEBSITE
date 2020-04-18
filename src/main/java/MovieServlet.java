@@ -42,7 +42,7 @@ public class MovieServlet extends HttpServlet {
             // Declare our statement
             Statement statement = dbcon.createStatement();
 
-            String query = "SELECT * from movies limit 20";
+            String query = "select topTen.id, topTen.title, topTen.year, topTen.director, group_concat(distinct genres.name separator ', ') as threeGenres, substring_index(group_concat(stars.name separator ','), ',', 3) as threeStars, topTen.rating from (select movies.*, ratings.rating from movies left join ratings on (movies.id = ratings.movieId) order by ratings.rating desc limit 10) as topTen left join stars_in_movies on (topTen.id = stars_in_movies.movieId) left join stars on (stars.id = stars_in_movies.starId) left join genres_in_movies on (topTen.id = genres_in_movies.movieId) left join genres on (genres.id = genres_in_movies.genreId) group by topTen.id order by topTen.rating desc;";
 
             // Perform the query
             ResultSet rs = statement.executeQuery(query);
