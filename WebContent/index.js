@@ -37,6 +37,15 @@ function handleMovieResult(resultData) {
         rowHTML += "<td>" + resultData[i]["movie_year"] + "</td>";
         rowHTML += "<td>" + resultData[i]["movie_director"] + "</td>";
         rowHTML += "<td>" + resultData[i]["threeGenres"] + "</td>";
+        rowHTML += "<td>";
+        var splitStars = resultData[i]["threeStars"].split(",");
+        for (let i = 0; i<splitStars.length; i++){
+            rowHTML += "<a href=''>";
+            rowHTML += splitStars[i];
+            rowHTML += "</a>";
+            rowHTML += ", ";
+        }
+        rowHTML += "<td>";
         rowHTML += "<td>" + resultData[i]["threeStars"] + "</td>";
         rowHTML += "<td>" + resultData[i]["rating"] + "</td>";
         rowHTML += "</tr>";
