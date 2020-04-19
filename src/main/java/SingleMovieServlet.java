@@ -45,7 +45,7 @@ public class SingleMovieServlet extends HttpServlet {
             Connection dbcon = dataSource.getConnection();
 
             // Construct a query with parameter represented by "?"
-            String query = "select movies.id, movies.title, movies.year, movies.director, group_concat(distinct genres.name separator ', ') as allGenres, group_concat(stars.name separator ',') as allStars, ratings.rating from movies left join ratings on (movies.id = ratings.movieId) left join stars_in_movies on (movies.id = stars_in_movies.movieId) left join stars on (stars.id = stars_in_movies.starId) left join genres_in_movies on (movies.id = genres_in_movies.movieId) left join genres on (genres.id = genres_in_movies.genreId) where movies.id = ? group by movies.id;";
+            String query = "select movies.id, group_concat(stars.id separator ',') as allStarIds, movies.title, movies.year, movies.director, group_concat(distinct genres.name separator ', ') as allGenres, group_concat(stars.name separator ',') as allStars, ratings.rating from movies left join ratings on (movies.id = ratings.movieId) left join stars_in_movies on (movies.id = stars_in_movies.movieId) left join stars on (stars.id = stars_in_movies.starId) left join genres_in_movies on (movies.id = genres_in_movies.movieId) left join genres on (genres.id = genres_in_movies.genreId) where movies.id = ? group by movies.id;";
 
             // Declare our statement
             PreparedStatement statement = dbcon.prepareStatement(query);
@@ -69,6 +69,7 @@ public class SingleMovieServlet extends HttpServlet {
 
                 String allGenres = rs.getString("allGenres");
                 String allStars = rs.getString("allStars");
+                String allStarIds = rs.getString("allStarIds");
                 String rating = rs.getString("rating");
                 // Create a JsonObject based on the data we retrieve from rs
 
@@ -80,6 +81,7 @@ public class SingleMovieServlet extends HttpServlet {
 
                 jsonObject.addProperty("all_genres", allGenres);
                 jsonObject.addProperty("all_stars", allStars);
+                jsonObject.addProperty("all_stars_ids", allStarIds);
                 jsonObject.addProperty("rating", rating);
 
             }

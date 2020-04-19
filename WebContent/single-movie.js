@@ -31,12 +31,21 @@ function handleResult(resultData) {
 
     let rowHTML = "";
     rowHTML += "<tr>";
-    rowHTML += "<th>" + resultData["movie_title"] + "</th>";
-    rowHTML += "<th>" + resultData["movie_year"] + "</th>";
-    rowHTML += "<th>" + resultData["movie_director"] + "</th>";
-    rowHTML += "<th>" + resultData["all_genres"] + "</th>";
-    rowHTML += "<th>" + resultData["all_stars"] + "</th>";
-    rowHTML += "<th>" + resultData["rating"] + "</th>";
+    rowHTML += "<td>" + resultData["movie_title"] + "</td>";
+    rowHTML += "<td>" + resultData["movie_year"] + "</td>";
+    rowHTML += "<td>" + resultData["movie_director"] + "</td>";
+    rowHTML += "<td>" + resultData["all_genres"] + "</td>";
+
+    rowHTML += "<td>";
+    let splitStars = resultData["all_stars"].split(',');
+    let splitStarIds = resultData["all_stars_ids"].split(',');
+    for (let i = 0; i<splitStars.length; i++){
+        rowHTML += "<a href = single-star.html?starId=" + splitStarIds[i] + ">"
+            + splitStars[i] + "</a>" + ", ";
+    }
+    rowHTML += "</td>";
+
+    rowHTML += "<td>" + resultData["rating"] + "</td>";
     rowHTML += "</tr>";
 
     // Append the row created to the table body, which will refresh the page

@@ -47,8 +47,7 @@ function handleMovieResult(resultData) {
             rowHTML += "</a>";
             rowHTML += ", ";
         }
-        rowHTML += "<td>";
-        rowHTML += "<td>" + resultData[i]["three_stars_ids"] + "</td>";
+        rowHTML += "</td>";
         rowHTML += "<td>" + resultData[i]["rating"] + "</td>";
         rowHTML += "</tr>";
 
