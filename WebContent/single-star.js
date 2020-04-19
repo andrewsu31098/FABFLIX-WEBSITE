@@ -1,20 +1,3 @@
-/**
- * This example is following frontend and backend separation.
- *
- * Before this .js is loaded, the html skeleton is created.
- *
- * This .js performs three steps:
- *      1. Get parameter from request URL so it know which id to look for
- *      2. Use jQuery to talk to backend API to get the json data.
- *      3. Populate the data to correct html elements.
- */
-
-
-/**
- * Retrieve parameter from request URL, matching by parameter name
- * @param target String
- * @returns {*}
- */
 function getParameterByName(target) {
     // Get request URL
     let url = window.location.href;
@@ -73,12 +56,12 @@ function handleResult(resultData) {
  */
 
 // Get id from URL
-let starId = getParameterByName('id');
+let starId = getParameterByName('starId');
 
 // Makes the HTTP GET request and registers on success callback function handleResult
 jQuery.ajax({
     dataType: "json",  // Setting return data type
     method: "GET",// Setting request method
-    url: "api/single-star?id=" + starId, // Setting request url, which is mapped by StarsServlet in Stars.java
+    url: "api/single-star?starId=" + starId, // Setting request url, which is mapped by StarsServlet in Stars.java
     success: (resultData) => handleResult(resultData) // Setting callback function to handle data returned successfully by the SingleStarServlet
 });

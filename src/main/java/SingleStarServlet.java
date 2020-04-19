@@ -22,7 +22,7 @@ public class SingleStarServlet extends HttpServlet {
 	private static final long serialVersionUID = 2L;
 
 	// Create a dataSource which registered in web.xml
-	@Resource(name = "jdbc/moviedbexample")
+	@Resource(name = "jdbc/moviedb")
 	private DataSource dataSource;
 
 	/**
@@ -35,7 +35,7 @@ public class SingleStarServlet extends HttpServlet {
 		response.setContentType("application/json"); // Response mime type
 
 		// Retrieve parameter id from url request.
-		String id = request.getParameter("id");
+		String starryId = request.getParameter("starId");
 
 		// Output stream to STDOUT
 		PrintWriter out = response.getWriter();
@@ -45,14 +45,14 @@ public class SingleStarServlet extends HttpServlet {
 			Connection dbcon = dataSource.getConnection();
 
 			// Construct a query with parameter represented by "?"
-			String query = "SELECT * from stars as s, stars_in_movies as sim, movies as m where m.id = sim.movieId and sim.starId = s.id and s.id = ?";
+			String query = "SELECT * from stars as s, stars_in_movies as sim, movies as m where m.id = sim.movieId and sim.starId = s.id and s.id = ?;";
 
 			// Declare our statement
 			PreparedStatement statement = dbcon.prepareStatement(query);
 
 			// Set the parameter represented by "?" in the query to the id we get from url,
 			// num 1 indicates the first "?" in the query
-			statement.setString(1, id);
+			statement.setString(1, starryId);
 
 			// Perform the query
 			ResultSet rs = statement.executeQuery();
