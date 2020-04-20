@@ -7,7 +7,7 @@
         <packaging>war</packaging>
       </options>
     </properties>
-    <root id="archive" name="project1-team181.war">
+    <root id="archive" name="cs122b_spring20_team_181.war">
       <element id="artifact" artifact-name="cs122b-spring20-team-181:war exploded" />
     </root>
   </artifact>

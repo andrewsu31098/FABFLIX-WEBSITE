@@ -34,7 +34,7 @@
     </dependencies>
 
     <build>
-        <finalName>project1-team181</finalName>
+        <finalName>cs122b_spring20_team_181</finalName>
         <sourceDirectory>src</sourceDirectory>
         <plugins>
             <plugin>
