@@ -1,0 +1,34 @@
+<!-- This page will be redirected from any url if you are not logged in -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login to Fablix</title>
+</head>
+<body>
+<h2>Login to Fablix</h2>
+<!-- Set the method to POST to avoid showing the username/password in the URL
+     The default action is disabled to allow your own implementation. -->
+<form id="login_form" method="post" action="#">
+    <label><b>Username</b></label>
+    <label>
+        <input name="username" placeholder="Enter Username" type="text">
+    </label>
+    <br>
+    <label><b>Password</b></label>
+    <label>
+        <input name="password" placeholder="Enter Password" type="password">
+    </label>
+    <br>
+    <input type="submit" value="Login">
+</form>
+
+<div id="login_error_message"></div>
+
+<!-- include jQuery-->
+<!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>-->
+<!-- include our own JS file -->
+<!--<script src="./login.js"></script>-->
+
+</body>
+</html>
