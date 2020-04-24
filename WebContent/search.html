@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <title>Fabflix Search</title>
+
+
+
+</head>
+<body>
+    <h1>Search for Movies!</h1>
+    <form id="search_form" action="#">
+        <div class="form-group">
+            <label for="titleOfMovie">Movie Title</label>
+            <input type="text" class="form-control" id="titleOfMovie" aria-describedby="emailHelp" placeholder="Enter movie title">
+        </div>
+        <div class="form-group">
+            <label for="yearOfRelease">Year of Release</label>
+            <input type="text" class="form-control" id="yearOfRelease" placeholder="Year">
+        </div>
+        <div class="form-group">
+            <label for="directorOfMovie">Director</label>
+            <input type="text" class="form-control" id="directorOfMovie" placeholder="Director">
+        </div>
+        <div class="form-group">
+            <label for="starOfMovie">Star Name</label>
+            <input type="text" class="form-control" id="starOfMovie" placeholder="Star Name">
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+    <div id="search_error_message"></div>
+    <!-- Load jQuery and Bootstrap JS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+    <!-- Load our own JS file -->
+    <!-- The path is relative to movie-list.html, since these two files are in the same directory -->
+    <!-- Note the url does not contain a "/" in the beginning, which means the url is relative to current path
+         otherwise the url is relative to the root path-->
+    <script src="search.js"></script>
+</body>
+</html>
