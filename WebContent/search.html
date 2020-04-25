@@ -14,7 +14,7 @@
 </head>
 <body>
     <h1>Search for Movies!</h1>
-    <form id="search_form" action="#">
+    <form id = 'search_form' action="movie-list.html/" method="get">
         <div class="form-group">
             <label for="titleOfMovie">Movie Title</label>
             <input type="text" class="form-control" id="titleOfMovie" aria-describedby="emailHelp" placeholder="Enter movie title">
@@ -33,6 +33,19 @@
         </div>
         <button type="submit" class="btn btn-primary">Submit</button>
     </form>
+
+<!--    <form action="movie-list.html" method="get">-->
+<!--        <label for="titleOfMovie">Title:</label>-->
+<!--        <input type="text" id="titleOfMovie" name="titleOfMovie"><br><br>-->
+<!--        <label for="yearOfMovie">Year:</label>-->
+<!--        <input type="text" id="yearOfMovie" name="yearOfMovie"><br><br>-->
+<!--        <label for="directorOfMovie">Director:</label>-->
+<!--        <input type="text" id="directorOfMovie" name="directorOfMovie"><br><br>-->
+<!--        <label for="starOfMovie">Star</label>-->
+<!--        <input type="text" id="starOfMovie" name="starOfMovie"><br><br>-->
+<!--        <input type="submit" value="Submit">-->
+<!--    </form>-->
+
     <div id="search_error_message"></div>
     <!-- Load jQuery and Bootstrap JS -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>

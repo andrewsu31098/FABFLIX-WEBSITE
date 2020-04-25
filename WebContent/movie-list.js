@@ -9,10 +9,47 @@
  */
 
 
+function getParameterByName(target) {
+    // Get request URL
+    let url = window.location.href;
+    // Encode target parameter name to url encoding
+    target = target.replace(/[\[\]]/g, "\\$&");
+
+    // Ues regular expression to find matched parameter value
+    let regex = new RegExp("[?&]" + target + "(=([^&#]*)|&|#|$)"),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+
+    // Return the decoded parameter value
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
+}
+
+function constructAPIURL(){
+    var returnURL = "api/movies?";
+    if (getParameterByName("starOfMovie")!= null){
+        returnURL += "starOfMovie="; returnURL += getParameterByName("starOfMovie"); returnURL += "&";
+    }
+    if (getParameterByName("titleOfMovie")!= null){
+        returnURL += "titleOfMovie="; returnURL += getParameterByName("titleOfMovie"); returnURL += "&";
+    }
+    if (getParameterByName("yearOfRelease")!= null){
+        returnURL += "yearOfRelease="; returnURL += getParameterByName("yearOfRelease"); returnURL += "&";
+    }
+    if (getParameterByName("directorOfMovie")!= null){
+        returnURL += "directorOfMovie="; returnURL += getParameterByName("directorOfMovie"); returnURL += "&";
+    }
+    return returnURL;
+}
+
+
 /**
  * Handles the data returned by the API, read the jsonObject and populate data into html elements
  * @param resultData jsonObject
  */
+
+
+
 function handleMovieResult(resultData) {
     console.log("handleMovieResult: populating movie table from resultData");
 
@@ -60,11 +97,11 @@ function handleMovieResult(resultData) {
 /**
  * Once this .js is loaded, following scripts will be executed by the browser
  */
-
+var apiURL = constructAPIURL();
 // Makes the HTTP GET request and registers on success callback function handleStarResult
 jQuery.ajax({
     dataType: "json", // Setting return data type
     method: "GET", // Setting request method
-    url: "api/movies", // Setting request url, which is mapped by StarsServlet in Stars.java
+    url: apiURL, // Setting request url, which is mapped by StarsServlet in Stars.java
     success: (resultData) => handleMovieResult(resultData) // Setting callback function to handle data returned successfully by the StarsServlet
 });

@@ -2,12 +2,6 @@ let search_form = $('#search_form');
 
 function appendParameter(youngURL, parameter){
     if (document.getElementById(parameter).value){
-        youngURL += parameter + "=" + document.getElementById(parameter).value;
-    }
-}
-
-function appendParameter(youngURL, parameter){
-    if (document.getElementById(parameter).value){
         youngURL += parameter + "=" + document.getElementById(parameter).value + "&";
     }
     return youngURL;
@@ -25,6 +19,6 @@ function submitSearchForm(formSubmitEvent) {
     movieLink = appendParameter(movieLink, "starOfMovie");
     // Remove an & symbol at the end;
     movieLink = movieLink.substring(0,movieLink.length-1);
-    window.location.href = movieLink;
+    window.location.assign(movieLink);
 }
 search_form.submit(submitSearchForm);

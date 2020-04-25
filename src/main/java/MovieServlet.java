@@ -29,6 +29,34 @@ public class MovieServlet extends HttpServlet {
     /**
      * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
      */
+    String constructSearchQuery(String starOfMovie, String titleOfMovie, String yearOfRelease, String directorOfMovie){
+        String searchQuery;
+        // Return a default search if no fields were filled
+        if (starOfMovie == null && titleOfMovie == null && yearOfRelease == null && directorOfMovie == null){
+            searchQuery = "select movies.id, movies.title, movies.year, movies.director, group_concat(distinct genres.name separator ', ') as threeGenres, substring_index(group_concat(stars.name separator ','), ',', 3) as threeStars, substring_index(group_concat(stars.id separator ','), ',', 3) as threeStarIds, movies.rating from (select movies.id, movies.title, movies.year, movies.director, ratings.rating from movies left join ratings on (movies.id = ratings.movieId) order by ratings.rating desc limit 20) as movies left join stars_in_movies on (movies.id = stars_in_movies.movieId) left join stars on (stars.id = stars_in_movies.starId) left join genres_in_movies on (movies.id = genres_in_movies.movieId) left join genres on (genres.id = genres_in_movies.genreId) group by movies.id order by movies.rating desc;";
+            return searchQuery;
+        }
+
+        // Return a custom search if fields were filled
+        searchQuery = "select movies.id, movies.title, movies.year, movies.director, group_concat(distinct genres.name separator ', ') as threeGenres, substring_index(group_concat(stars.name separator ','), ',', 3) as threeStars, substring_index(group_concat(stars.id separator ','), ',', 3) as threeStarIds, ratings.rating from (select movies.id, movies.title, movies.year, movies.director from movies left join stars_in_movies on (movies.id = stars_in_movies.movieId) left join stars on (stars.id = stars_in_movies.starId) ";
+        if (starOfMovie != null){
+            searchQuery += String.format("where stars.name like '%%%s%%'",starOfMovie);
+        }
+        searchQuery += ") as movies left join stars_in_movies on (movies.id = stars_in_movies.movieId) left join stars on (stars.id = stars_in_movies.starId) left join genres_in_movies on (movies.id = genres_in_movies.movieId) left join genres on (genres.id = genres_in_movies.genreId) left join ratings on (movies.id = ratings.movieId) ";
+        if (titleOfMovie!= null || yearOfRelease != null || directorOfMovie!= null){
+            searchQuery += "where ";
+            if (titleOfMovie!= null)
+                searchQuery += String.format("movies.title like '%%%s%%' AND ",titleOfMovie);
+            if (yearOfRelease!= null)
+                searchQuery += String.format("movies.year = %s AND ",yearOfRelease);
+            if (directorOfMovie!= null)
+                searchQuery += String.format("movies.director like '%%%s%%' AND ", directorOfMovie);
+            //Remove "AND " at the end.
+            searchQuery = searchQuery.substring(0,searchQuery.length()-4);
+        }
+        searchQuery += "group by movies.id order by ratings.rating desc limit 20;";
+        return searchQuery;
+    }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
@@ -44,7 +72,7 @@ public class MovieServlet extends HttpServlet {
             // Declare our statement
             Statement statement = dbcon.createStatement();
 
-            String query = "select topTen.id, substring_index(group_concat(stars.id separator ','), ',', 3) as threeStarIds, topTen.title, topTen.year, topTen.director, group_concat(distinct genres.name separator ', ') as threeGenres, substring_index(group_concat(stars.name separator ','), ',', 3) as threeStars, topTen.rating from (select movies.*, ratings.rating from movies left join ratings on (movies.id = ratings.movieId) order by ratings.rating desc limit 20) as topTen left join stars_in_movies on (topTen.id = stars_in_movies.movieId) left join stars on (stars.id = stars_in_movies.starId) left join genres_in_movies on (topTen.id = genres_in_movies.movieId) left join genres on (genres.id = genres_in_movies.genreId) group by topTen.id order by topTen.rating desc;";
+            String query = constructSearchQuery(request.getParameter("starOfMovie"), request.getParameter("titleOfMovie"), request.getParameter("yearOfRelease"), request.getParameter("directorOfMovie"));
 
             // Perform the query
             ResultSet rs = statement.executeQuery(query);
