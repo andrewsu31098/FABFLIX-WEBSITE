@@ -26,15 +26,15 @@ public class MovieServlet extends HttpServlet {
     @Resource(name = "jdbc/moviedb")
     private DataSource dataSource;
 
-    /**
-     * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
-     */
+
+    String defaultMovieQuery(){
+        return "select movies.id, movies.title, movies.year, movies.director, group_concat(distinct genres.name separator ', ') as threeGenres, substring_index(group_concat(stars.name separator ','), ',', 3) as threeStars, substring_index(group_concat(stars.id separator ','), ',', 3) as threeStarIds, movies.rating from (select movies.id, movies.title, movies.year, movies.director, ratings.rating from movies left join ratings on (movies.id = ratings.movieId) order by ratings.rating desc limit 20) as movies left join stars_in_movies on (movies.id = stars_in_movies.movieId) left join stars on (stars.id = stars_in_movies.starId) left join genres_in_movies on (movies.id = genres_in_movies.movieId) left join genres on (genres.id = genres_in_movies.genreId) group by movies.id order by movies.rating desc;";
+    }
     String constructSearchQuery(String starOfMovie, String titleOfMovie, String yearOfRelease, String directorOfMovie){
         String searchQuery;
         // Return a default search if no fields were filled
         if (starOfMovie == null && titleOfMovie == null && yearOfRelease == null && directorOfMovie == null){
-            searchQuery = "select movies.id, movies.title, movies.year, movies.director, group_concat(distinct genres.name separator ', ') as threeGenres, substring_index(group_concat(stars.name separator ','), ',', 3) as threeStars, substring_index(group_concat(stars.id separator ','), ',', 3) as threeStarIds, movies.rating from (select movies.id, movies.title, movies.year, movies.director, ratings.rating from movies left join ratings on (movies.id = ratings.movieId) order by ratings.rating desc limit 20) as movies left join stars_in_movies on (movies.id = stars_in_movies.movieId) left join stars on (stars.id = stars_in_movies.starId) left join genres_in_movies on (movies.id = genres_in_movies.movieId) left join genres on (genres.id = genres_in_movies.genreId) group by movies.id order by movies.rating desc;";
-            return searchQuery;
+            return defaultMovieQuery();
         }
 
         // Return a custom search if fields were filled
@@ -57,6 +57,23 @@ public class MovieServlet extends HttpServlet {
         searchQuery += "group by movies.id order by ratings.rating desc limit 20;";
         return searchQuery;
     }
+    String constructBrowseQuery(String byCategory, String givenCategory){
+        String browseQuery = "select movies.id, movies.title, movies.year, movies.director, group_concat(distinct genres.name separator ', ') as threeGenres, substring_index(group_concat(stars.name separator ','), ',', 3) as threeStars, substring_index(group_concat(stars.id separator ','), ',', 3) as threeStarIds, ratings.rating from (select movies.id, movies.title, movies.year, movies.director from movies ";
+
+        if (byCategory.equals("title")) {
+            browseQuery += "left join ratings on (movies.id = ratings.movieId) ";
+            browseQuery += String.format("where movies.title like '%s%%' order by movies.title asc limit 20) as movies ",givenCategory);
+        }
+        else if (byCategory.equals("genre")){
+            browseQuery += "left join genres_in_movies on (movies.id = genres_in_movies.movieId) left join genres on (genres.id = genres_in_movies.genreId) left join ratings on (movies.id = ratings.movieId) ";
+            browseQuery += String.format("where genres.name = '%s' limit 20) as movies ",givenCategory);
+        }
+        else{
+            return defaultMovieQuery();
+        }
+        browseQuery += "left join stars_in_movies on (movies.id = stars_in_movies.movieId) left join stars on (stars.id = stars_in_movies.starId) left join genres_in_movies on (movies.id = genres_in_movies.movieId) left join genres on (genres.id = genres_in_movies.genreId) left join ratings on (movies.id = ratings.movieId) group by movies.id order by movies.title asc, ratings.rating desc;";
+        return browseQuery;
+    }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
@@ -72,8 +89,14 @@ public class MovieServlet extends HttpServlet {
             // Declare our statement
             Statement statement = dbcon.createStatement();
 
-            String query = constructSearchQuery(request.getParameter("starOfMovie"), request.getParameter("titleOfMovie"), request.getParameter("yearOfRelease"), request.getParameter("directorOfMovie"));
-
+            // Query is either Browse or Search
+            String query;
+            if (request.getParameter("type").equals("search"))
+                query = constructSearchQuery(request.getParameter("starOfMovie"), request.getParameter("titleOfMovie"), request.getParameter("yearOfRelease"), request.getParameter("directorOfMovie"));
+            else if (request.getParameter("type").equals("browse"))
+                query = constructBrowseQuery(request.getParameter("byCategory"),request.getParameter("givenCat"));
+            else
+                query = defaultMovieQuery();
             // Perform the query
             ResultSet rs = statement.executeQuery(query);
 

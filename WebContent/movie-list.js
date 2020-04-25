@@ -27,6 +27,9 @@ function getParameterByName(target) {
 
 function constructAPIURL(){
     var returnURL = "api/movies?";
+    if (getParameterByName("type")!= null){
+        returnURL += "type="; returnURL += getParameterByName("type"); returnURL += "&";
+    }
     if (getParameterByName("starOfMovie")!= null){
         returnURL += "starOfMovie="; returnURL += getParameterByName("starOfMovie"); returnURL += "&";
     }
@@ -38,6 +41,13 @@ function constructAPIURL(){
     }
     if (getParameterByName("directorOfMovie")!= null){
         returnURL += "directorOfMovie="; returnURL += getParameterByName("directorOfMovie"); returnURL += "&";
+    }
+
+    if (getParameterByName("byCategory")!= null){
+        returnURL += "byCategory="; returnURL += getParameterByName("byCategory"); returnURL += "&";
+    }
+    if (getParameterByName("givenCat")!= null){
+        returnURL += "givenCat="; returnURL += getParameterByName("givenCat"); returnURL += "&";
     }
     return returnURL;
 }
@@ -58,7 +68,7 @@ function handleMovieResult(resultData) {
     let movieTableBodyElement = jQuery("#movie_table_body");
 
     // Iterate through resultData, no more than 10 entries
-    for (let i = 0; i < Math.min(20, resultData.length); i++) {
+    for (let i = 0; i < Math.min(100, resultData.length); i++) {
 
         // Concatenate the html tags with resultData jsonObject
         let rowHTML = "";
