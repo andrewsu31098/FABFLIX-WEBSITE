@@ -37,7 +37,7 @@ public class MovieServlet extends HttpServlet {
         }
 
         // Return a custom search if fields were filled
-        String searchQuery = "select movies.id, movies.title, movies.year, movies.director, group_concat(distinct genres.name separator ', ') as threeGenres, substring_index(group_concat(stars.name separator ','), ',', 3) as threeStars, substring_index(group_concat(stars.id separator ','), ',', 3) as threeStarIds, ratings.rating from (select movies.id, movies.title, movies.year, movies.director from movies left join stars_in_movies on (movies.id = stars_in_movies.movieId) left join stars on (stars.id = stars_in_movies.starId) where ";
+        String searchQuery = "select movies.id, movies.title, movies.year, movies.director, group_concat(distinct genres.name order by genres.name separator ', ') as threeGenres, substring_index(group_concat(distinct stars.name order by stars.name asc separator ','), ',', 3) as threeStars, substring_index(group_concat(stars.id separator ','), ',', 3) as threeStarIds, ratings.rating from (select movies.id, movies.title, movies.year, movies.director from movies left join stars_in_movies on (movies.id = stars_in_movies.movieId) left join stars on (stars.id = stars_in_movies.starId) where ";
 
         if (starOfMovie!= null)
             searchQuery += String.format("stars.name like '%%%s%%' AND ",starOfMovie);
@@ -54,7 +54,7 @@ public class MovieServlet extends HttpServlet {
         return searchQuery;
     }
     String constructBrowseQuery(String byCategory, String givenCategory){
-        String browseQuery = "select movies.id, movies.title, movies.year, movies.director, group_concat(distinct genres.name order by genres.name asc separator ', ') as threeGenres, substring_index(group_concat(stars.name separator ','), ',', 3) as threeStars, substring_index(group_concat(stars.id separator ','), ',', 3) as threeStarIds, ratings.rating from (select movies.id, movies.title, movies.year, movies.director from movies ";
+        String browseQuery = "select movies.id, movies.title, movies.year, movies.director, group_concat(distinct genres.name order by genres.name asc separator ', ') as threeGenres, substring_index(group_concat(distinct stars.name order by stars.name asc separator ','), ',', 3) as threeStars, substring_index(group_concat(stars.id separator ','), ',', 3) as threeStarIds, ratings.rating from (select movies.id, movies.title, movies.year, movies.director from movies ";
 
         if (byCategory.equals("title")) {
             browseQuery += "left join ratings on (movies.id = ratings.movieId) ";
