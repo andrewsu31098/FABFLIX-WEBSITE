@@ -40,5 +40,25 @@
         <a href="movie-list.html?type=browse&byCategory=title&givenCat=Z">Z</a>
     </ul>
 
+    <table id="genre_table" class="table table-striped">
+        <!-- Create a table header -->
+        <thead>
+        <tr>
+            <!-- Titles of each column-->
+            <th>Genres</th>
+        </tr>
+        </thead>
+        <!-- Table body is left empty here, will be populated with the data retrieved with movie-list.js -->
+        <!-- Again, id "movie_table_body" is useful for jQuery to find this html element -->
+        <tbody id="genre_browse_body"></tbody>
+    </table>
+
+    <!-- Load jQuery and Bootstrap JS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+    <!--Populate Genre List-->
+    <script src="browse.js"></script>
 </body>
 </html>
