@@ -83,7 +83,18 @@ function handleMovieResult(resultData) {
             "</td>";
         rowHTML += "<td>" + resultData[i]["movie_year"] + "</td>";
         rowHTML += "<td>" + resultData[i]["movie_director"] + "</td>";
-        rowHTML += "<td>" + resultData[i]["three_genres"] + "</td>";
+
+        rowHTML += "<td>";
+        let splitGenres = resultData[i]["three_genres"].split(",");
+        for (let i = 0; i<splitGenres.length; i++){
+            rowHTML += "<a href = " +
+                "movie-list.html?type=browse&byCategory=genre&givenCat=" + splitGenres[i] + ">";
+            rowHTML += splitGenres[i];
+            rowHTML += "</a>";
+            rowHTML += ", ";
+        }
+        rowHTML += "</td>";
+
         rowHTML += "<td>";
         let splitStars = resultData[i]["three_stars"].split(",");
         let splitSIds = resultData[i]["three_stars_ids"].split(",");
@@ -95,6 +106,7 @@ function handleMovieResult(resultData) {
             rowHTML += ", ";
         }
         rowHTML += "</td>";
+
         rowHTML += "<td>" + resultData[i]["rating"] + "</td>";
         rowHTML += "</tr>";
 
