@@ -17,12 +17,27 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
           integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
+    <!--Font Awesome Glyphicons-->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
+
     <title>Movie List</title>
 </head>
 <body>
 
 
 <h1>Movie List</h1>
+
+<label>Sort Results: </label> <i class="fas fa-arrow-up"></i>
+<select class="sort-criteria">
+    <option value="TURU">Title UP, Rating UP</option>
+    <option value="TURD">Title UP, Rating DOWN</option>
+    <option value="TDRU">Title DOWN, Rating UP</option>
+    <option value="TDRD">Title DOWN, Rating DOWN</option>
+    <option value="RUTU">Rating UP, Title UP</option>
+    <option value="RUTD">Rating UP, Title DOWN</option>
+    <option value="RDTU">Rating DOWN, Title UP</option>
+    <option value="RDTD">Rating DOWN, Title DOWN</option>
+</select>
 
 <table id=star_table class="table table-striped">
     <!-- Create a table header -->

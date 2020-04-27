@@ -30,6 +30,7 @@ function constructAPIURL(){
     if (getParameterByName("type")!= null){
         returnURL += "type="; returnURL += getParameterByName("type"); returnURL += "&";
     }
+    // SEARCH REQUEST
     if (getParameterByName("starOfMovie")!= null){
         returnURL += "starOfMovie="; returnURL += getParameterByName("starOfMovie"); returnURL += "&";
     }
@@ -42,12 +43,16 @@ function constructAPIURL(){
     if (getParameterByName("directorOfMovie")!= null){
         returnURL += "directorOfMovie="; returnURL += getParameterByName("directorOfMovie"); returnURL += "&";
     }
-
+    // BROWSE REQUEST
     if (getParameterByName("byCategory")!= null){
         returnURL += "byCategory="; returnURL += getParameterByName("byCategory"); returnURL += "&";
     }
     if (getParameterByName("givenCat")!= null){
         returnURL += "givenCat="; returnURL += getParameterByName("givenCat"); returnURL += "&";
+    }
+    // SORT RESULTS
+    if (getParameterByName("sortBy")!= null){
+        returnURL += "sortBy="; returnURL += getParameterByName("sortBy"); returnURL += "&";
     }
     return returnURL;
 }
@@ -126,4 +131,22 @@ jQuery.ajax({
     method: "GET", // Setting request method
     url: apiURL, // Setting request url, which is mapped by StarsServlet in Stars.java
     success: (resultData) => handleMovieResult(resultData) // Setting callback function to handle data returned successfully by the StarsServlet
+});
+
+
+$(document).ready(function(){
+    $("select.sort-criteria").change(function(){
+        var selectedSort = $(this).children("option:selected").val();
+        var sortURL = window.location.href;
+        var prevSortCond = getParameterByName("sortBy");
+        if (prevSortCond == null){
+            sortURL += "&sortBy=" + selectedSort;
+        }
+        else{
+            sortURL = sortURL.substring(0,sortURL.length-4);
+            sortURL += selectedSort;
+        }
+        alert("You have selected the country - " + sortURL);
+        window.location.replace(sortURL);
+    });
 });
