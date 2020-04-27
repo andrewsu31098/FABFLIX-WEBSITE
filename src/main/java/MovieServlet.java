@@ -30,6 +30,42 @@ public class MovieServlet extends HttpServlet {
     String defaultMovieQuery(){
         return "select movies.id, movies.title, movies.year, movies.director, group_concat(distinct genres.name separator ', ') as threeGenres, substring_index(group_concat(stars.name separator ','), ',', 3) as threeStars, substring_index(group_concat(stars.id separator ','), ',', 3) as threeStarIds, movies.rating from (select movies.id, movies.title, movies.year, movies.director, ratings.rating from movies left join ratings on (movies.id = ratings.movieId) order by ratings.rating desc limit 20) as movies left join stars_in_movies on (movies.id = stars_in_movies.movieId) left join stars on (stars.id = stars_in_movies.starId) left join genres_in_movies on (movies.id = genres_in_movies.movieId) left join genres on (genres.id = genres_in_movies.genreId) group by movies.id order by movies.rating desc;";
     }
+    String addSortingCondition(String query, String sortBy){
+        query += "order by ";
+        if (sortBy != null) {
+            switch (sortBy) {
+                case "TURU":
+                    query += "movies.title asc, ratings.rating asc ";
+                    break;
+                case "TURD":
+                    query += "movies.title asc, ratings.rating desc ";
+                    break;
+                case "TDRU":
+                    query += "movies.title desc, ratings.rating asc ";
+                    break;
+                case "TDRD":
+                    query += "movies.title desc, ratings.rating desc ";
+                    break;
+                case "RUTU":
+                    query += "ratings.rating asc, movies.title asc ";
+                    break;
+                case "RUTD":
+                    query += "ratings.rating asc, movies.title desc ";
+                    break;
+                case "RDTU":
+                    query += "ratings.rating desc, movies.title asc ";
+                    break;
+                case "RDTD":
+                    query += "ratings.rating desc, movies.title desc ";
+                    break;
+            }
+        }
+        else{
+            query += "ratings.rating desc ";
+        }
+        query += "limit 20 ";
+        return query;
+    }
     String constructSearchQuery(String starOfMovie, String titleOfMovie, String yearOfRelease, String directorOfMovie, String sortBy){
         // Return a default search if no fields were filled
         if (starOfMovie == null && titleOfMovie == null && yearOfRelease == null && directorOfMovie == null){
@@ -37,10 +73,10 @@ public class MovieServlet extends HttpServlet {
         }
 
         // Return a custom search if fields were filled
-        String searchQuery = "select movies.id, movies.title, movies.year, movies.director, group_concat(distinct genres.name order by genres.name separator ',') as threeGenres, substring_index(group_concat(distinct stars.name order by stars.name asc separator ','), ',', 3) as threeStars, substring_index(group_concat(stars.id separator ','), ',', 3) as threeStarIds, ratings.rating from (select movies.id, movies.title, movies.year, movies.director from movies left join stars_in_movies on (movies.id = stars_in_movies.movieId) left join stars on (stars.id = stars_in_movies.starId) where ";
+        String searchQuery = "select movies.id, movies.title, movies.year, movies.director, group_concat(distinct genres.name order by genres.name asc separator ',') as threeGenres, substring_index(group_concat(distinct stars.name order by stars.name asc separator ','), ',', 3) as threeStars, substring_index(group_concat(stars.id separator ','), ',', 3) as threeStarIds, ratings.rating from (select movies.id, movies.title, movies.year, movies.director from (select * from movies left join ratings on (movies.id = ratings.movieId) ";
 
-        if (starOfMovie!= null)
-            searchQuery += String.format("stars.name like '%%%s%%' AND ",starOfMovie);
+        if (titleOfMovie != null || yearOfRelease != null || directorOfMovie != null)
+            searchQuery += "where ";
         if (titleOfMovie!= null)
             searchQuery += String.format("movies.title like '%%%s%%' AND ",titleOfMovie);
         if (yearOfRelease!= null)
@@ -50,39 +86,16 @@ public class MovieServlet extends HttpServlet {
         //Remove "AND " at the end.
         searchQuery = searchQuery.substring(0,searchQuery.length()-4);
 
-        searchQuery += "group by movies.id limit 20) as movies left join stars_in_movies on (movies.id = stars_in_movies.movieId) left join stars on (stars.id = stars_in_movies.starId) left join genres_in_movies on (movies.id = genres_in_movies.movieId) left join genres on (genres.id = genres_in_movies.genreId) left join ratings on (movies.id = ratings.movieId) group by movies.id order by ";
+        searchQuery = addSortingCondition(searchQuery, sortBy);
 
-        if (sortBy != null) {
-            switch (sortBy) {
-                case "TURU":
-                    searchQuery += "movies.title asc, ratings.rating asc;";
-                    break;
-                case "TURD":
-                    searchQuery += "movies.title asc, ratings.rating desc;";
-                    break;
-                case "TDRU":
-                    searchQuery += "movies.title desc, ratings.rating asc;";
-                    break;
-                case "TDRD":
-                    searchQuery += "movies.title desc, ratings.rating desc;";
-                    break;
-                case "RUTU":
-                    searchQuery += "ratings.rating asc, movies.title asc;";
-                    break;
-                case "RUTD":
-                    searchQuery += "ratings.rating asc, movies.title desc;";
-                    break;
-                case "RDTU":
-                    searchQuery += "ratings.rating desc, movies.title asc;";
-                    break;
-                case "RDTD":
-                    searchQuery += "ratings.rating desc, movies.title desc;";
-                    break;
-            }
-        }
-        else{
-            searchQuery += "ratings.rating desc;";
-        }
+        searchQuery += ") as movies left join stars_in_movies on (movies.id = stars_in_movies.movieId) left join stars on (stars.id = stars_in_movies.starId) ";
+
+        if (starOfMovie!= null)
+            searchQuery += String.format("where stars.name like '%%%s%%' ",starOfMovie);
+
+        searchQuery += "group by movies.id) as movies left join stars_in_movies on (movies.id = stars_in_movies.movieId) left join stars on (stars.id = stars_in_movies.starId) left join genres_in_movies on (movies.id = genres_in_movies.movieId) left join genres on (genres.id = genres_in_movies.genreId) left join ratings on (movies.id = ratings.movieId) group by movies.id ";
+
+        searchQuery = addSortingCondition(searchQuery, sortBy);
 
         return searchQuery;
     }
@@ -91,16 +104,21 @@ public class MovieServlet extends HttpServlet {
 
         if (byCategory.equals("title")) {
             browseQuery += "left join ratings on (movies.id = ratings.movieId) ";
-            browseQuery += String.format("where movies.title like '%s%%' order by movies.title asc limit 20) as movies ",givenCategory);
+            browseQuery += String.format("where movies.title like '%s%%' ", givenCategory);
+            browseQuery = addSortingCondition(browseQuery, sortBy);
         }
         else if (byCategory.equals("genre")){
             browseQuery += "left join genres_in_movies on (movies.id = genres_in_movies.movieId) left join genres on (genres.id = genres_in_movies.genreId) left join ratings on (movies.id = ratings.movieId) ";
-            browseQuery += String.format("where genres.name = '%s' limit 20) as movies ",givenCategory);
+            browseQuery += String.format("where genres.name = '%s' ",givenCategory);
+            browseQuery = addSortingCondition(browseQuery, sortBy);
         }
         else{
             return defaultMovieQuery();
         }
-        browseQuery += "left join stars_in_movies on (movies.id = stars_in_movies.movieId) left join stars on (stars.id = stars_in_movies.starId) left join genres_in_movies on (movies.id = genres_in_movies.movieId) left join genres on (genres.id = genres_in_movies.genreId) left join ratings on (movies.id = ratings.movieId) group by movies.id order by movies.title asc, ratings.rating desc;";
+        browseQuery += ") as movies left join stars_in_movies on (movies.id = stars_in_movies.movieId) left join stars on (stars.id = stars_in_movies.starId) left join genres_in_movies on (movies.id = genres_in_movies.movieId) left join genres on (genres.id = genres_in_movies.genreId) left join ratings on (movies.id = ratings.movieId) group by movies.id ";
+
+        browseQuery = addSortingCondition(browseQuery, sortBy);
+
         return browseQuery;
     }
 
