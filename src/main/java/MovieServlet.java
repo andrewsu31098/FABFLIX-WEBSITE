@@ -30,6 +30,12 @@ public class MovieServlet extends HttpServlet {
     String defaultMovieQuery(){
         return "select movies.id, movies.title, movies.year, movies.director, group_concat(distinct genres.name separator ', ') as threeGenres, substring_index(group_concat(stars.name separator ','), ',', 3) as threeStars, substring_index(group_concat(stars.id separator ','), ',', 3) as threeStarIds, movies.rating from (select movies.id, movies.title, movies.year, movies.director, ratings.rating from movies left join ratings on (movies.id = ratings.movieId) order by ratings.rating desc limit 20) as movies left join stars_in_movies on (movies.id = stars_in_movies.movieId) left join stars on (stars.id = stars_in_movies.starId) left join genres_in_movies on (movies.id = genres_in_movies.movieId) left join genres on (genres.id = genres_in_movies.genreId) group by movies.id order by movies.rating desc;";
     }
+    String addLimits(String query, String pageOffset, String pageLimit){
+        String limitClause = (pageLimit == null) ? "limit 20 " : "limit " + pageLimit + " ";
+        if (pageOffset != null)
+            limitClause += "offset " + pageOffset + " ";
+        return query + limitClause;
+    }
     String addSortingCondition(String query, String sortBy){
         query += "order by ";
         if (sortBy != null) {
@@ -63,10 +69,10 @@ public class MovieServlet extends HttpServlet {
         else{
             query += "ratings.rating desc ";
         }
-        query += "limit 20 ";
+
         return query;
     }
-    String constructSearchQuery(String starOfMovie, String titleOfMovie, String yearOfRelease, String directorOfMovie, String sortBy){
+    String constructSearchQuery(String starOfMovie, String titleOfMovie, String yearOfRelease, String directorOfMovie, String sortBy, String pageOffset, String pageLimit){
         // Return a default search if no fields were filled
         if (starOfMovie == null && titleOfMovie == null && yearOfRelease == null && directorOfMovie == null){
             return defaultMovieQuery();
@@ -87,7 +93,7 @@ public class MovieServlet extends HttpServlet {
         searchQuery = searchQuery.substring(0,searchQuery.length()-4);
 
         searchQuery = addSortingCondition(searchQuery, sortBy);
-
+        searchQuery = addLimits(searchQuery, pageOffset, pageLimit);
         searchQuery += ") as movies left join stars_in_movies on (movies.id = stars_in_movies.movieId) left join stars on (stars.id = stars_in_movies.starId) ";
 
         if (starOfMovie!= null)
@@ -99,18 +105,20 @@ public class MovieServlet extends HttpServlet {
 
         return searchQuery;
     }
-    String constructBrowseQuery(String byCategory, String givenCategory, String sortBy){
+    String constructBrowseQuery(String byCategory, String givenCategory, String sortBy, String pageOffset, String pageLimit){
         String browseQuery = "select movies.id, movies.title, movies.year, movies.director, group_concat(distinct genres.name order by genres.name asc separator ',') as threeGenres, substring_index(group_concat(distinct stars.name order by stars.name asc separator ','), ',', 3) as threeStars, substring_index(group_concat(stars.id separator ','), ',', 3) as threeStarIds, ratings.rating from (select movies.id, movies.title, movies.year, movies.director from movies ";
 
         if (byCategory.equals("title")) {
             browseQuery += "left join ratings on (movies.id = ratings.movieId) ";
             browseQuery += String.format("where movies.title like '%s%%' ", givenCategory);
             browseQuery = addSortingCondition(browseQuery, sortBy);
+            browseQuery = addLimits(browseQuery, pageOffset, pageLimit);
         }
         else if (byCategory.equals("genre")){
             browseQuery += "left join genres_in_movies on (movies.id = genres_in_movies.movieId) left join genres on (genres.id = genres_in_movies.genreId) left join ratings on (movies.id = ratings.movieId) ";
             browseQuery += String.format("where genres.name = '%s' ",givenCategory);
             browseQuery = addSortingCondition(browseQuery, sortBy);
+            browseQuery = addLimits(browseQuery, pageOffset, pageLimit);
         }
         else{
             return defaultMovieQuery();
@@ -139,9 +147,9 @@ public class MovieServlet extends HttpServlet {
             // Query is either Browse or Search
             String query;
             if (request.getParameter("type").equals("search"))
-                query = constructSearchQuery(request.getParameter("starOfMovie"), request.getParameter("titleOfMovie"), request.getParameter("yearOfRelease"), request.getParameter("directorOfMovie"), request.getParameter("sortBy"));
+                query = constructSearchQuery(request.getParameter("starOfMovie"), request.getParameter("titleOfMovie"), request.getParameter("yearOfRelease"), request.getParameter("directorOfMovie"), request.getParameter("sortBy"), request.getParameter("pageOffset"), request.getParameter("pageLimit"));
             else if (request.getParameter("type").equals("browse"))
-                query = constructBrowseQuery(request.getParameter("byCategory"),request.getParameter("givenCat"), request.getParameter("sortBy"));
+                query = constructBrowseQuery(request.getParameter("byCategory"),request.getParameter("givenCat"), request.getParameter("sortBy"), request.getParameter("pageOffset"), request.getParameter("pageLimit"));
             else
                 query = defaultMovieQuery();
             // Perform the query
