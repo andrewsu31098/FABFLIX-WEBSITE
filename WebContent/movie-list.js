@@ -25,6 +25,20 @@ function getParameterByName(target) {
     return decodeURIComponent(results[2].replace(/\+/g, " "));
 }
 
+function replaceUrlParam(url, paramName, paramValue)
+{
+    if (paramValue == null) {
+        paramValue = '';
+    }
+    var pattern = new RegExp('\\b('+paramName+'=).*?(&|#|$)');
+    if (url.search(pattern)>=0) {
+        return url.replace(pattern,'$1' + paramValue + '$2');
+    }
+    url = url.replace(/[?#]$/,'');
+    return url + (url.indexOf('?')>0 ? '&' : '?') + paramName + '=' + paramValue;
+}
+
+
 function constructAPIURL(){
     var returnURL = "api/movies?";
     if (getParameterByName("type")!= null){
@@ -138,14 +152,48 @@ $(document).ready(function(){
     $("select.sort-criteria").change(function(){
         var selectedSort = $(this).children("option:selected").val();
         var sortURL = window.location.href;
-        var prevSortCond = getParameterByName("sortBy");
-        if (prevSortCond == null){
-            sortURL += "&sortBy=" + selectedSort;
-        }
-        else{
-            sortURL = sortURL.substring(0,sortURL.length-4);
-            sortURL += selectedSort;
-        }
+
+        sortURL = replaceUrlParam(sortURL,"sortBy",selectedSort);
+
+        alert("You have selected the country - " + sortURL);
+        window.location.replace(sortURL);
+    });
+});
+
+var pageNumber = (getParameterByName("pageLimit")==null) ? 0 : parseInt(getParameterByName("pageLimit"))/20;
+if (pageNumber > 0)
+    $("#prev-button").removeClass("disabled");
+else if (pageNumber <= 0)
+    $("#prev-button").addClass("disabled");
+
+$(document).ready(function(){
+    $("#next-button").click(function(){
+        pageNumber++;
+        alert(pageNumber);
+
+        let nextURL = window.location.href;
+        nextURL = replaceUrlParam(nextURL,"pageLimit",pageNumber*20);
+        alert(nextURL);
+        window.location.replace(nextURL);
+    });
+    $("#prev-button").click(function(){
+
+        pageNumber--;
+
+        let prevURL = window.location.href;
+        prevURL = replaceUrlParam(prevURL,"pageLimit",pageNumber*20);
+        alert(prevURL);
+        window.location.replace(prevURL);
+
+    });
+});
+
+
+$(document).ready(function(){
+    $("select.page-limit").change(function(){
+        let selectLimit = $(this).children("option:selected").val();
+        let limitURL = window.location.href;
+
         alert("You have selected the country - " + sortURL);
         window.location.replace(sortURL);
     });
