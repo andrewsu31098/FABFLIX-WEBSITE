@@ -64,9 +64,15 @@ function constructAPIURL(){
     if (getParameterByName("givenCat")!= null){
         returnURL += "givenCat="; returnURL += getParameterByName("givenCat"); returnURL += "&";
     }
-    // SORT RESULTS
+    // SORT RESULTS, PAGE OFFSET, PAGE LIMIT
     if (getParameterByName("sortBy")!= null){
         returnURL += "sortBy="; returnURL += getParameterByName("sortBy"); returnURL += "&";
+    }
+    if (getParameterByName("pageOffset")!= null){
+        returnURL += "pageOffset="; returnURL += getParameterByName("pageOffset"); returnURL += "&";
+    }
+    if (getParameterByName("pageLimit")!= null){
+        returnURL += "pageLimit="; returnURL += getParameterByName("pageLimit"); returnURL += "&";
     }
     return returnURL;
 }
@@ -160,7 +166,7 @@ $(document).ready(function(){
     });
 });
 
-var pageNumber = (getParameterByName("pageLimit")==null) ? 0 : parseInt(getParameterByName("pageLimit"))/20;
+var pageNumber = (getParameterByName("pageOffset")==null) ? 0 : parseInt(getParameterByName("pageOffset"))/20;
 if (pageNumber > 0)
     $("#prev-button").removeClass("disabled");
 else if (pageNumber <= 0)
@@ -172,7 +178,8 @@ $(document).ready(function(){
         alert(pageNumber);
 
         let nextURL = window.location.href;
-        nextURL = replaceUrlParam(nextURL,"pageLimit",pageNumber*20);
+        let pageOffset = $("select.page-limit").children("option:selected").val();
+        nextURL = replaceUrlParam(nextURL,"pageOffset",pageNumber*pageOffset);
         alert(nextURL);
         window.location.replace(nextURL);
     });
@@ -181,7 +188,7 @@ $(document).ready(function(){
         pageNumber--;
 
         let prevURL = window.location.href;
-        prevURL = replaceUrlParam(prevURL,"pageLimit",pageNumber*20);
+        prevURL = replaceUrlParam(prevURL,"pageOffset",pageNumber*20);
         alert(prevURL);
         window.location.replace(prevURL);
 
@@ -194,7 +201,7 @@ $(document).ready(function(){
         let selectLimit = $(this).children("option:selected").val();
         let limitURL = window.location.href;
 
-        alert("You have selected the country - " + sortURL);
-        window.location.replace(sortURL);
+        limitURL = replaceUrlParam(limitURL,"pageLimit",selectLimit);
+        window.location.replace(limitURL);
     });
 });

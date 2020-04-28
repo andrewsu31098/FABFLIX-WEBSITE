@@ -27,7 +27,7 @@
 
 <h1>Movie List</h1>
 
-<label>Sort Results: </label> <i class="fas fa-arrow-up"></i>
+<label>Sort Results: </label>
 <select class="sort-criteria">
     <option value="TURU">Title UP, Rating UP</option>
     <option value="TURD">Title UP, Rating DOWN</option>
@@ -71,10 +71,13 @@
 </nav>
 
 <!--SET RESULT SIZE DROPDOWN-->
+<label>Number of Results: </label>
 <select class="page-limit">
+    <option value="20" selected>Default</option>
     <option value="10">10</option>
     <option value="25">25</option>
-    <option value="40">40</option>
+    <option value="50">50</option>
+    <option value="100">100</option>
 </select>
 
 <!-- Load jQuery and Bootstrap JS -->
