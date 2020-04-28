@@ -134,6 +134,16 @@ public class MovieServlet extends HttpServlet {
 
         response.setContentType("application/json"); // Response mime type
 
+        StringBuilder requestURL = new StringBuilder("movie-list.html");
+        String queryString = request.getQueryString();
+
+        if (queryString == null) {
+            request.getSession().setAttribute("oldMovieLink",requestURL.toString());
+        } else {
+            request.getSession().setAttribute("oldMovieLink",requestURL.append('?').append(queryString).toString());
+        }
+
+
         // Output stream to STDOUT
         PrintWriter out = response.getWriter();
 
