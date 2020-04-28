@@ -34,7 +34,14 @@ function handleResult(resultData) {
     rowHTML += "<td>" + resultData["movie_title"] + "</td>";
     rowHTML += "<td>" + resultData["movie_year"] + "</td>";
     rowHTML += "<td>" + resultData["movie_director"] + "</td>";
-    rowHTML += "<td>" + resultData["all_genres"] + "</td>";
+
+    rowHTML += "<td>"
+    let splitGenres = resultData["all_genres"].split(',');
+    for (let i = 0; i<splitGenres.length; i++){
+        rowHTML += "<a href = movie-list.html?type=browse&byCategory=genre&givenCat=" + splitGenres[i] + ">"
+            + splitGenres[i] + "</a>" + ", ";
+    }
+    rowHTML += "</td>";
 
     rowHTML += "<td>";
     let splitStars = resultData["all_stars"].split(',');
