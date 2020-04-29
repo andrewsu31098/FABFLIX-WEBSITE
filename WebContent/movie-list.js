@@ -143,9 +143,16 @@ function handleMovieResult(resultData) {
         movieTableBodyElement.append(rowHTML);
     }
 }
-
+function successMessage(succ){
+    alert("Succsfully Added Movie to Cart");
+}
 function addToCart(movieId){
     alert(movieId);
+    $.ajax("api/shopping", {
+        method: "POST",
+        data: {"postType":"set", "movie_id":movieId},
+        success: successMessage
+    });
 }
 
 
