@@ -144,7 +144,7 @@ function handleMovieResult(resultData) {
     }
 }
 function successMessage(succ){
-    alert("Succsfully Added Movie to Cart");
+    alert(succ);
 }
 function addToCart(movieId){
     alert(movieId);

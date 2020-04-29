@@ -53,11 +53,29 @@ function handleResult(resultData) {
     rowHTML += "</td>";
 
     rowHTML += "<td>" + resultData["rating"] + "</td>";
+
+    rowHTML += "<td> <button type='button' onclick='addToCart(\""
+        + resultData["movie_id"] + "\")'>Add Movie to Cart</button> </td>";
+
     rowHTML += "</tr>";
 
     // Append the row created to the table body, which will refresh the page
     movieTableBodyElement.append(rowHTML);
 }
+
+
+function successMessage(succ){
+    alert(succ);
+}
+function addToCart(movieId){
+    alert(movieId);
+    $.ajax("api/shopping", {
+        method: "POST",
+        data: {"postType":"set", "movie_id":movieId},
+        success: successMessage
+    });
+}
+
 
 /**
  * Once this .js is loaded, following scripts will be executed by the browser\
