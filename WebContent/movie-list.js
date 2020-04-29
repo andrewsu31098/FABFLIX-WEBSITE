@@ -133,11 +133,19 @@ function handleMovieResult(resultData) {
         rowHTML += "</td>";
 
         rowHTML += "<td>" + resultData[i]["rating"] + "</td>";
+
+        rowHTML += "<td> <button type='button' onclick='addToCart(\""
+                        + resultData[i]["movie_id"] + "\")'>Add Movie to Cart</button> </td>";
+
         rowHTML += "</tr>";
 
         // Append the row created to the table body, which will refresh the page
         movieTableBodyElement.append(rowHTML);
     }
+}
+
+function addToCart(movieId){
+    alert(movieId);
 }
 
 
@@ -205,3 +213,4 @@ $(document).ready(function(){
         window.location.replace(limitURL);
     });
 });
+
