@@ -65,7 +65,7 @@ function handleResult(resultData) {
 
 
 function successMessage(succ){
-    alert(succ);
+    alert("Added to cart. Success!");
 }
 function addToCart(movieId){
     alert(movieId);
