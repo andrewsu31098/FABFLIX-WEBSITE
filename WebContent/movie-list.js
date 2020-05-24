@@ -7,7 +7,7 @@
  *      1. Use jQuery to talk to backend API to get the json data.
  *      2. Populate the data to correct html elements.
  */
-
+var pageNumber = (getParameterByName("pageOffset")==null) ? 0 : parseInt(getParameterByName("pageOffset"))/20;
 
 function getParameterByName(target) {
     // Get request URL
@@ -77,6 +77,26 @@ function constructAPIURL(){
     return returnURL;
 }
 
+function handlePaginationTags(resultSetSize){
+    if (resultSetSize < ((getParameterByName("pageLimit") == null ? 20 : getParameterByName("pageLimit")))) {
+        $("#next-button").addClass("disabled");
+        $("#next-button").attr("tabindex",-1);
+    }
+    else {
+        $("#next-button").removeClass("disabled");
+        $("#next-button").attr("tabindex",1);
+    }
+    alert(resultSetSize);
+
+    if (pageNumber > 0) {
+        $("#prev-button").removeClass("disabled");
+        $("#prev-button").attr("tabindex",1);
+    }
+    else if (pageNumber <= 0){
+        $("#prev-button").addClass("disabled");
+        $("#prev-button").attr("tabindex",-1);
+    }
+}
 
 /**
  * Handles the data returned by the API, read the jsonObject and populate data into html elements
@@ -87,6 +107,9 @@ function constructAPIURL(){
 
 function handleMovieResult(resultData) {
     console.log("handleMovieResult: populating movie table from resultData");
+
+    // Disable next button if at the end of results.
+    handlePaginationTags(resultData.length);
 
     // Populate the star table
     // Find the empty table body by id "star_table_body"
@@ -181,32 +204,34 @@ $(document).ready(function(){
     });
 });
 
-var pageNumber = (getParameterByName("pageOffset")==null) ? 0 : parseInt(getParameterByName("pageOffset"))/20;
-if (pageNumber > 0)
-    $("#prev-button").removeClass("disabled");
-else if (pageNumber <= 0)
-    $("#prev-button").addClass("disabled");
+
 
 $(document).ready(function(){
     $("#next-button").click(function(){
-        pageNumber++;
-        alert(pageNumber);
+        alert("next button clicked");
+        alert($("#next-button").attr("tabindex"));
+        alert($("#next-button").attr("tabindex") > 0);
 
-        let nextURL = window.location.href;
-        let pageOffset = $("select.page-limit").children("option:selected").val();
-        nextURL = replaceUrlParam(nextURL,"pageOffset",pageNumber*pageOffset);
-        alert(nextURL);
-        window.location.replace(nextURL);
+        if ($("#next-button").attr("tabindex") > 0) {
+            pageNumber++;
+            alert(pageNumber);
+
+            let nextURL = window.location.href;
+            let pageOffset = $("select.page-limit").children("option:selected").val();
+            nextURL = replaceUrlParam(nextURL, "pageOffset", pageNumber * pageOffset);
+            alert(nextURL);
+            window.location.replace(nextURL);
+        }
     });
     $("#prev-button").click(function(){
+        if ($("#prev-button").attr("tabindex") > 0) {
+            pageNumber--;
 
-        pageNumber--;
-
-        let prevURL = window.location.href;
-        prevURL = replaceUrlParam(prevURL,"pageOffset",pageNumber*20);
-        alert(prevURL);
-        window.location.replace(prevURL);
-
+            let prevURL = window.location.href;
+            prevURL = replaceUrlParam(prevURL, "pageOffset", pageNumber * 20);
+            alert(prevURL);
+            window.location.replace(prevURL);
+        }
     });
 });
 
