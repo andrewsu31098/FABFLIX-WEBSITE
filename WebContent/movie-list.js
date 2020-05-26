@@ -86,7 +86,6 @@ function handlePaginationTags(resultSetSize){
         $("#next-button").removeClass("disabled");
         $("#next-button").attr("tabindex",1);
     }
-    alert(resultSetSize);
 
     if (pageNumber > 0) {
         $("#prev-button").removeClass("disabled");
@@ -167,13 +166,13 @@ function handleMovieResult(resultData) {
     }
 }
 function successMessage(succ){
-    alert("Added to cart. Success!");
+    alert(succ);
+    //alert("Added to cart. Success!");
 }
 function addToCart(movieId){
-    alert(movieId);
     $.ajax("api/shopping", {
         method: "POST",
-        data: {"postType":"set", "movie_id":movieId},
+        data: {"postType":"add", "movieId":movieId},
         success: successMessage
     });
 }
@@ -208,18 +207,13 @@ $(document).ready(function(){
 
 $(document).ready(function(){
     $("#next-button").click(function(){
-        alert("next button clicked");
-        alert($("#next-button").attr("tabindex"));
-        alert($("#next-button").attr("tabindex") > 0);
 
         if ($("#next-button").attr("tabindex") > 0) {
             pageNumber++;
-            alert(pageNumber);
 
             let nextURL = window.location.href;
             let pageOffset = $("select.page-limit").children("option:selected").val();
             nextURL = replaceUrlParam(nextURL, "pageOffset", pageNumber * pageOffset);
-            alert(nextURL);
             window.location.replace(nextURL);
         }
     });
@@ -229,7 +223,6 @@ $(document).ready(function(){
 
             let prevURL = window.location.href;
             prevURL = replaceUrlParam(prevURL, "pageOffset", pageNumber * 20);
-            alert(prevURL);
             window.location.replace(prevURL);
         }
     });

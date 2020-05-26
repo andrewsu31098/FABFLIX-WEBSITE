@@ -13,11 +13,15 @@ import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
+
+
 
 @WebServlet(name = "ShoppingServlet", urlPatterns = "/api/shopping")
 public class ShoppingServlet extends HttpServlet {
@@ -29,32 +33,40 @@ public class ShoppingServlet extends HttpServlet {
     private DataSource dataSource;
 
 
-    /**
-     * handles POST requests to add and show the item list information
-     */
+    String constructShoppingQuery(HashMap<String,Integer> prevOrders){
+        String query = "select movies.title from movies where movies.id in (";
+        for (Map.Entry mapElement : prevOrders.entrySet()) {
+            query += "?,";
+        }
+        query = query.substring(0,query.length()-1);
+        query += ")";
+        return query;
+    }
+
+
+    // Adds movie into shopping cart cookie and error/success message.
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String item = request.getParameter("movie_id");
+        String postType = request.getParameter("postType");
+        String movId = request.getParameter("movieId");
         HttpSession session = request.getSession();
 
-        JsonArray previousItems = (JsonArray) session.getAttribute("previousItems");
+        // get the previous items in a Hashmap
+        HashMap<String, Integer> prevOrders = (HashMap<String, Integer>) session.getAttribute("prevOrders");
 
-        if (previousItems == null) {
-            previousItems = new JsonArray();
-            JsonObject moviePair = new JsonObject();
-            moviePair.addProperty(item, 1);
-            previousItems.add(moviePair);
-            session.setAttribute("previousItems", previousItems);
+        if (prevOrders == null) {
+            prevOrders = new HashMap<String, Integer>();
+            prevOrders.put(movId, 1);
+            session.setAttribute("prevOrders", prevOrders);
         } else {
             // prevent corrupted states through sharing under multi-threads
             // will only be executed by one thread at a time
-            synchronized (previousItems) {
-                JsonObject moviePair = new JsonObject();
-                moviePair.addProperty(item, 1);
-                previousItems.add(moviePair);
+            synchronized (prevOrders) {
+                // Default Dict behavior YES!
+                prevOrders.merge(movId, 1, Integer::sum);
             }
         }
 
-        response.getWriter().write(previousItems.toString());
+        response.getWriter().write(String.join(",",  prevOrders.keySet()));
     }
 
     /**
@@ -62,8 +74,9 @@ public class ShoppingServlet extends HttpServlet {
      */
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         HttpSession session = request.getSession();
-        JsonArray previousItems = (JsonArray) session.getAttribute("previousItems");
 
+        // get the previous items in a Hashmap
+        HashMap<String, Integer> prevOrders = (HashMap<String, Integer>) session.getAttribute("prevOrders");
 
 
         response.setContentType("application/json"); // Response mime type
@@ -75,45 +88,42 @@ public class ShoppingServlet extends HttpServlet {
             // Get a connection from dataSource
             Connection dbcon = dataSource.getConnection();
 
+            // Construct a query with parameter represented by "?"
+            String query = constructShoppingQuery(prevOrders);
+
             // Declare our statement
-            Statement statement = dbcon.createStatement();
+            PreparedStatement statement = dbcon.prepareStatement(query);
 
-            // Query is either Browse or Search
-            String query = "select movies.title from movies where movies.id in (";
-            for (int i = 0; i<previousItems.size(); i++ ){
-                if (i==previousItems.size()-1)
-                    query += "'" + ((JsonObject) previousItems.get(i)).keySet().iterator().next() + "'";
-                else
-                    query += "'" + ((JsonObject) previousItems.get(i)).keySet().iterator().next() + "',";
+            // Set the parameter represented by "?" in the query to the id we get from url,
+            // num 1 indicates the first "?" in the query
+            int index = 1;
+            for (Map.Entry mapElement : prevOrders.entrySet()) {
+                statement.setString(index++, (String) mapElement.getKey());
             }
-            query += ")";
-
 
             // Perform the query
-            ResultSet rs = statement.executeQuery(query);
+            ResultSet rs = statement.executeQuery();
 
             JsonArray jsonArray = new JsonArray();
 
-            // Iterate through each row of rs
-            while (rs.next()) {
-                String movie_title = rs.getString("title");
-
-                // Create a JsonObject based on the data we retrieve from rs
-                JsonObject jsonObject = new JsonObject();
-                jsonObject.addProperty("movie_title", movie_title);
+            // Iterate Hashmap and prepare response object
+            if (prevOrders != null) {
+                for (Map.Entry mapElement : prevOrders.entrySet()) {
+                    JsonObject jsonObject = new JsonObject();
+                    rs.next();
 
 
-                jsonArray.add(jsonObject);
+                    jsonObject.addProperty("movieId", (String) mapElement.getKey());
+                    jsonObject.addProperty("movieTitle", rs.getString("title"));
+                    jsonObject.addProperty("count", (Integer) mapElement.getValue());
+                    jsonArray.add(jsonObject);
+                }
             }
 
             // write JSON string to output
             out.write(jsonArray.toString());
             // set response status to 200 (OK)
             response.setStatus(200);
-
-            rs.close();
-            statement.close();
-            dbcon.close();
         } catch (Exception e) {
 
             // write error message JSON object to output
@@ -127,8 +137,6 @@ public class ShoppingServlet extends HttpServlet {
         }
         out.close();
 
-        // write all the data into the jsonObject
-        response.getWriter().write(previousItems.toString());
     }
 
 }
