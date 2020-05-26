@@ -31,8 +31,8 @@ function handleTitleResult(resultData) {
         // Concatenate the html tags with resultData jsonObject
         let rowHTML = "";
         rowHTML += "<tr>";
-        rowHTML += "<td>" + resultData[i]["movieId"] + "</td>";
-        rowHTML += "<td>" + resultData[i]["count"] + "</td>";
+        rowHTML += "<td>" + resultData[i]["movieTitle"] + "</td>";
+        rowHTML += "<td>" + resultData[i]["price"] + "$</td>";
         rowHTML += "<td>" + resultData[i]["count"] + "</td>";
         rowHTML += "</tr>";
 

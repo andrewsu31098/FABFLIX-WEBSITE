@@ -116,6 +116,7 @@ public class ShoppingServlet extends HttpServlet {
                     jsonObject.addProperty("movieId", (String) mapElement.getKey());
                     jsonObject.addProperty("movieTitle", rs.getString("title"));
                     jsonObject.addProperty("count", (Integer) mapElement.getValue());
+                    jsonObject.addProperty("price", rs.getString("title").hashCode() & 0xfffffff %20 );
                     jsonArray.add(jsonObject);
                 }
             }
