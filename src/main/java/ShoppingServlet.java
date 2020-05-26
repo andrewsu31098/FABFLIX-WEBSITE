@@ -34,7 +34,7 @@ public class ShoppingServlet extends HttpServlet {
 
 
     String constructShoppingQuery(HashMap<String,Integer> prevOrders){
-        String query = "select movies.title from movies where movies.id in (";
+        String query = "select movies.id, movies.title from movies where movies.id in (";
         for (Map.Entry mapElement : prevOrders.entrySet()) {
             query += "?,";
         }
@@ -108,17 +108,17 @@ public class ShoppingServlet extends HttpServlet {
 
             // Iterate Hashmap and prepare response object
             if (prevOrders != null) {
-                for (Map.Entry mapElement : prevOrders.entrySet()) {
+                while (rs.next()){
                     JsonObject jsonObject = new JsonObject();
-                    rs.next();
 
-
-                    jsonObject.addProperty("movieId", (String) mapElement.getKey());
+                    String movieId = rs.getString("id");
+                    jsonObject.addProperty("movieId", movieId);
                     jsonObject.addProperty("movieTitle", rs.getString("title"));
-                    jsonObject.addProperty("count", (Integer) mapElement.getValue());
-                    jsonObject.addProperty("price", rs.getString("title").hashCode() & 0xfffffff %20 );
+                    jsonObject.addProperty("count", prevOrders.get(movieId));
+                    jsonObject.addProperty("price", movieId.hashCode() & 0xfffffff %20 );
                     jsonArray.add(jsonObject);
                 }
+
             }
 
             // write JSON string to output
