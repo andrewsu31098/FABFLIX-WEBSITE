@@ -79,6 +79,12 @@ public class ShoppingServlet extends HttpServlet {
                         prevOrders.remove(movId);
                     }
                 }
+                break;
+            case "remove":
+                synchronized (prevOrders){
+                    prevOrders.remove(movId);
+                }
+                break;
         }
 
         JsonObject jsonObject = new JsonObject();

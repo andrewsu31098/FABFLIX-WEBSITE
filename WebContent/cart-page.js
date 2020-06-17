@@ -20,7 +20,7 @@ function handleTitleResult(resultData) {
             "<span>" + resultData[i]["count"] + "</span>" +
             "<button onclick='addToCart(\"" + resultData[i]["movieId"] + "\")'> <span class='fa fa-arrow-up'></span> Up</button>" +
             "<button onclick='subFromCart(\"" + resultData[i]["movieId"] + "\")'> <span class='fa fa-arrow-down'></span> Down</button>" +
-            "<button> <span class='fa fa-remove'></span> </button>" +
+            "<button onclick='removeItem(\"" + resultData[i]["movieId"] + "\")'> <span class='fa fa-remove'></span> </button>" +
             "</td>";
         rowHTML += "</tr>";
 
