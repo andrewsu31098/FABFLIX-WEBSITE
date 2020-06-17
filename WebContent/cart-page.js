@@ -19,7 +19,7 @@ function handleTitleResult(resultData) {
         rowHTML += "<td class = \"count\">" +
             "<span>" + resultData[i]["count"] + "</span>" +
             "<button onclick='addToCart(\"" + resultData[i]["movieId"] + "\")'> <span class='fa fa-arrow-up'></span> Up</button>" +
-            "<button> <span class='fa fa-arrow-down'></span> Down</button>" +
+            "<button onclick='subFromCart(\"" + resultData[i]["movieId"] + "\")'> <span class='fa fa-arrow-down'></span> Down</button>" +
             "<button> <span class='fa fa-remove'></span> </button>" +
             "</td>";
         rowHTML += "</tr>";
@@ -45,7 +45,10 @@ function successMessage(succ){
     alert(result["count"]);
 /*    movieRow = $("#"+succ["movieId"] + "> .count ");
     movieRow.html(succ["count"]);*/
-    $("#" + result["movieId"] + " > .count > span").text(result["count"]);
+    if (result["count"] == null)
+        $("#"+result["movieId"]).remove();
+    else
+        $("#" + result["movieId"] + " > .count > span").text(result["count"]);
 }
 function addToCart(movieId){
     $.ajax("api/shopping", {

@@ -69,6 +69,16 @@ public class ShoppingServlet extends HttpServlet {
                     }
                 }
                 break;
+            case "sub":
+                synchronized (prevOrders) {
+                    // Default Dict behavior YES!
+                    prevOrders.merge(movId, -1, Integer::sum);
+                }
+                if (prevOrders.get(movId)<= 0){
+                    synchronized (prevOrders){
+                        prevOrders.remove(movId);
+                    }
+                }
         }
 
         JsonObject jsonObject = new JsonObject();
