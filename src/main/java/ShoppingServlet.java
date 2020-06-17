@@ -53,18 +53,23 @@ public class ShoppingServlet extends HttpServlet {
         // get the previous items in a Hashmap
         HashMap<String, Integer> prevOrders = (HashMap<String, Integer>) session.getAttribute("prevOrders");
 
-        if (prevOrders == null) {
-            prevOrders = new HashMap<String, Integer>();
-            prevOrders.put(movId, 1);
-            session.setAttribute("prevOrders", prevOrders);
-        } else {
-            // prevent corrupted states through sharing under multi-threads
-            // will only be executed by one thread at a time
-            synchronized (prevOrders) {
-                // Default Dict behavior YES!
-                prevOrders.merge(movId, 1, Integer::sum);
-            }
+        switch (postType){
+            case "add":
+                if (prevOrders == null) {
+                    prevOrders = new HashMap<String, Integer>();
+                    prevOrders.put(movId, 1);
+                    session.setAttribute("prevOrders", prevOrders);
+                } else {
+                    // prevent corrupted states through sharing under multi-threads
+                    // will only be executed by one thread at a time
+                    synchronized (prevOrders) {
+                        // Default Dict behavior YES!
+                        prevOrders.merge(movId, 1, Integer::sum);
+                    }
+                }
+                break;
         }
+
 
         response.getWriter().write(String.join(",",  prevOrders.keySet()));
     }

@@ -5,25 +5,8 @@
 
 function handleTitleResult(resultData) {
     alert("title result fired");
-    // Populate the star table
-    // Find the empty table body by id "star_table_body"
+    // Find the empty table body by id "cart_table_body"
     let cartTableBodyElement = jQuery("#cart_table_body");
-
-    // for (let i = 0; i < 3; i++) {
-    //
-    //     // Concatenate the html tags with resultData jsonObject
-    //     let rowHTML = "";
-    //     rowHTML += "<tr>";
-    //     rowHTML += "<td>" + i + "</td>";
-    //     rowHTML += "<td>" + i + "</td>";
-    //     rowHTML += "<td>" + i + "</td>";
-    //     rowHTML += "</tr>";
-    //
-    //     // Append the row created to the table body, which will refresh the page
-    //     cartTableBodyElement.append(rowHTML);
-    // }
-
-
 
     // Iterate through resultData, no more than 10 entries
     for (let i = 0; i < Math.min(100, resultData.length); i++) {
@@ -33,7 +16,11 @@ function handleTitleResult(resultData) {
         rowHTML += "<tr>";
         rowHTML += "<td>" + resultData[i]["movieTitle"] + "</td>";
         rowHTML += "<td>" + resultData[i]["price"] + "$</td>";
-        rowHTML += "<td>" + resultData[i]["count"] + "</td>";
+        rowHTML += "<td>" + resultData[i]["count"] +
+            "<button> <span class='fa fa-arrow-up'></span> Up</button>" +
+            "<button> <span class='fa fa-arrow-down'></span> Down</button>" +
+            "<button> <span class='fa fa-remove'></span> </button>" +
+            "</td>";
         rowHTML += "</tr>";
 
         // Append the row created to the table body, which will refresh the page
@@ -49,3 +36,5 @@ jQuery.ajax({
     success: (resultData) => handleTitleResult(resultData), // Setting callback function to handle data returned successfully by the StarsServlet
     error: function(){alert("failed");}
 });
+
+
