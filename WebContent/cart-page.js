@@ -13,11 +13,12 @@ function handleTitleResult(resultData) {
 
         // Concatenate the html tags with resultData jsonObject
         let rowHTML = "";
-        rowHTML += "<tr>";
+        rowHTML += "<tr id=" + resultData[i]["movieId"] + ">";
         rowHTML += "<td>" + resultData[i]["movieTitle"] + "</td>";
         rowHTML += "<td>" + resultData[i]["price"] + "$</td>";
-        rowHTML += "<td>" + resultData[i]["count"] +
-            "<button> <span class='fa fa-arrow-up'></span> Up</button>" +
+        rowHTML += "<td class = \"count\">" +
+            "<span>" + resultData[i]["count"] + "</span>" +
+            "<button onclick='addToCart(\"" + resultData[i]["movieId"] + "\")'> <span class='fa fa-arrow-up'></span> Up</button>" +
             "<button> <span class='fa fa-arrow-down'></span> Down</button>" +
             "<button> <span class='fa fa-remove'></span> </button>" +
             "</td>";
@@ -36,5 +37,36 @@ jQuery.ajax({
     success: (resultData) => handleTitleResult(resultData), // Setting callback function to handle data returned successfully by the StarsServlet
     error: function(){alert("failed");}
 });
+
+function successMessage(succ){
+
+    alert(succ);
+    var result = JSON.parse(succ);
+    alert(result["count"]);
+/*    movieRow = $("#"+succ["movieId"] + "> .count ");
+    movieRow.html(succ["count"]);*/
+    $("#" + result["movieId"] + " > .count > span").text(result["count"]);
+}
+function addToCart(movieId){
+    $.ajax("api/shopping", {
+        method: "POST",
+        data: {"postType":"add", "movieId":movieId},
+        success: successMessage
+    });
+}
+function subFromCart(movieId){
+    $.ajax("api/shopping", {
+        method: "POST",
+        data: {"postType":"sub", "movieId":movieId},
+        success: successMessage
+    });
+}
+function removeItem(movieId){
+    $.ajax("api/shopping", {
+        method: "POST",
+        data: {"postType":"remove", "movieId":movieId},
+        success: successMessage
+    });
+}
 
 

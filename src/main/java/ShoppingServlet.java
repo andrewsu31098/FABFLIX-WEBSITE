@@ -53,6 +53,7 @@ public class ShoppingServlet extends HttpServlet {
         // get the previous items in a Hashmap
         HashMap<String, Integer> prevOrders = (HashMap<String, Integer>) session.getAttribute("prevOrders");
 
+
         switch (postType){
             case "add":
                 if (prevOrders == null) {
@@ -70,8 +71,11 @@ public class ShoppingServlet extends HttpServlet {
                 break;
         }
 
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("movieId",movId);
+        jsonObject.addProperty("count",prevOrders.get(movId));
 
-        response.getWriter().write(String.join(",",  prevOrders.keySet()));
+        response.getWriter().write(jsonObject.toString());
     }
 
     /**
